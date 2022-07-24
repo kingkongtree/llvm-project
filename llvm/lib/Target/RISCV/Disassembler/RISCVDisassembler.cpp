@@ -428,6 +428,21 @@ static DecodeStatus decodeRVCInstrRdRs1Rs2(MCInst &Inst, unsigned Insn,
   return MCDisassembler::Success;
 }
 
+static DecodeStatus decodeACERegisterClass(MCInst &Inst uint64_t RegNo,
+                                          uint64_t Address,
+                                          const MCDisassembler *Decoder) {
+  const FeatureBitset &FeatureBits =
+      Decoder->getSubtargetInfo().getFeatureBits();
+  bool IsRV32E = FeatureBits[RISCV::FeatureRV32E];
+
+  if (RegNo >= 32 || (IsRV32E && RegNo >= 16))
+    return MCDisassembler::Fail;
+
+  MCRegister Reg = RISCV::ACE0 + RegNo;
+  Inst.addOperand(MCOperand::createReg(Reg));
+  return MCDisassembler::Success;
+}
+
 DecodeStatus RISCVDisassembler::getInstruction(MCInst &MI, uint64_t &Size,
                                                ArrayRef<uint8_t> Bytes,
                                                uint64_t Address,

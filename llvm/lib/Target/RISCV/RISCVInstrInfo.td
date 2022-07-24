@@ -181,6 +181,13 @@ def uimmlog2xlen : Operand<XLenVT>, ImmLeaf<XLenVT, [{
   let OperandNamespace = "RISCVOp";
 }
 
+def uimm1 : Operand<XLenVT> {
+  let ParserMatchClass = UImmAsmOperand<1>;
+  let DecoderMethod = "decodeUImmOperand<1>";
+  let OperandType = "OPERAND_UIMM1";
+  let OperandNamespace = "RISCVOp";
+}
+
 def uimm2 : Operand<XLenVT> {
   let ParserMatchClass = UImmAsmOperand<2>;
   let DecoderMethod = "decodeUImmOperand<2>";
@@ -1493,6 +1500,14 @@ def : Pat<(atomic_fence (XLenVT 5), (timm)), (FENCE 0b11, 0b1)>;
 def : Pat<(atomic_fence (XLenVT 6), (timm)), (FENCE_TSO)>;
 // fence seq_cst -> fence rw, rw
 def : Pat<(atomic_fence (XLenVT 7), (timm)), (FENCE 0b11, 0b11)>;
+
+// write register ace instruction
+let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in {
+  def ACE_CMD :
+    RVInstACE<0b0000100, 0b0000, OPC_ACE, (outs),
+      (ins GPR:$rs1, GPR:$rs2, ACE:$ace3, uimm1:$imm1),
+      "ace_cmd", "$rs1, $rs2, $ace3, $imm1">, Sched<[]>;
+}
 
 // Lowering for atomic load and store is defined in RISCVInstrInfoA.td.
 // Although these are lowered to fence+load/store instructions defined in the

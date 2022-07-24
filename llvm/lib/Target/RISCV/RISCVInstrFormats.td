@@ -47,7 +47,8 @@ def InstFormatCS     : InstFormat<13>;
 def InstFormatCA     : InstFormat<14>;
 def InstFormatCB     : InstFormat<15>;
 def InstFormatCJ     : InstFormat<16>;
-def InstFormatOther  : InstFormat<17>;
+def InstFormatACE    : InstFormat<17>;
+def InstFormatOther  : InstFormat<18>;
 
 class RISCVVConstraint<bits<3> val> {
   bits<3> Value = val;
@@ -145,6 +146,7 @@ def OPC_BRANCH    : RISCVOpcode<"BRANCH",    0b1100011>;
 def OPC_JALR      : RISCVOpcode<"JALR",      0b1100111>;
 def OPC_JAL       : RISCVOpcode<"JAL",       0b1101111>;
 def OPC_SYSTEM    : RISCVOpcode<"SYSTEM",    0b1110011>;
+def OPC_ACE       : RISCVOpcode<"ACE",       0b1111011>;
 
 class RVInst<dag outs, dag ins, string opcodestr, string argstr,
              list<dag> pattern, InstFormat format>
@@ -432,6 +434,23 @@ class RVInstJ<RISCVOpcode opcode, dag outs, dag ins, string opcodestr,
   let Inst{20} = imm20{10};
   let Inst{19-12} = imm20{18-11};
   let Inst{11-7} = rd;
+  let Opcode = opcode.Value;
+}
+
+class RVInstACE<bits<7> funct7, bits<4> funct4, RISCVOpcode opcode, dag outs, dag ins,
+                string opcodestr, string argstr>
+    : RVInst<outs, ins, opcodestr, argstr, [], InstFormatACE> {
+  bits<5> rs1;
+  bits<5> rs2;
+  bits<3> ace3;
+  bits<1> imm1;
+
+  let Inst{31-25} = funct7;
+  let Inst{24-20} = rs1;
+  let Inst{19-15} = rs2;
+  let Inst{14-11} = funct4;
+  let Inst{10} = imm1;
+  let Inst{9-7} = ace3;
   let Opcode = opcode.Value;
 }
 

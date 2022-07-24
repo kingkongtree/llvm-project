@@ -43,7 +43,8 @@ enum {
   InstFormatCA = 14,
   InstFormatCB = 15,
   InstFormatCJ = 16,
-  InstFormatOther = 17,
+  InstFormatACE = 17,
+  InstFormatOther = 18,
 
   InstFormatMask = 31,
   InstFormatShift = 0,
@@ -225,6 +226,7 @@ enum OperandType : unsigned {
   OPERAND_UIMM20,
   OPERAND_UIMMLOG2XLEN,
   OPERAND_RVKRNUM,
+  OPERAND_UIMM1,
   OPERAND_LAST_RISCV_IMM = OPERAND_RVKRNUM,
   // Operand is either a register or uimm5, this is used by V extension pseudo
   // instructions to represent a value that be passed as AVL to either vsetvli
