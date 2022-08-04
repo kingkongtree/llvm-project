@@ -49,6 +49,12 @@ class RISCVRegWithSubRegs<bits<5> Enc, string n, list<Register> subregs,
   let AltNames = alt;
 }
 
+// RegACE - 4-bit register for RISC-V ACE inst
+class RISCVRegACE<bits<4> Enc, string n, list<string> alt = []> : Register<n> {
+  let HWEncoding{3-0} = Enc;
+  let AltNames = alt;
+}
+
 def ABIRegAltName : RegAltNameIndex;
 
 def sub_vrm4_0 : SubRegIndex<256>;
@@ -261,17 +267,6 @@ def FPR64C : RegisterClass<"RISCV", [f64], 64, (add
   (sequence "F%u_D", 8, 9)
 )>;
 
-// RegACE - 4-bit register for RISC-V ACE inst
-class RISCVRegACE<bits<4> Enc, string n, list<string> alt = []> : Register<n> {
-  let HWEncoding{3-0} = Enc;
-  let AltNames = alt;
-}
-
-// Define a ACE Register class for RISC-V
-def ACE : RegisterClass<"RISCV", [i16], 16, (add
-  (sequence "ACE%u", 0, 15)
-)>;
-
 // Define the ACE registers
 let RegAltNameIndices = [ABIRegAltName] in {
   // def ACE0 : RISCVRegACE<0, "ace_reg_0", ["ace_reg_0"]>, DwarfRegNum<[0]>;
@@ -290,12 +285,17 @@ let RegAltNameIndices = [ABIRegAltName] in {
   // def ACE13 : RISCVRegACE<13, "ace_reg_13", ["ace_reg_13"]>, DwarfRegNum<[13]>;
   // def ACE14 : RISCVRegACE<14, "ace_reg_14", ["ace_reg_14"]>, DwarfRegNum<[14]>;
   // def ACE15 : RISCVRegACE<15, "ace_reg_15", ["ace_reg_15"]>, DwarfRegNum<[15]>;
-
   foreach Index = 0-15 in {
-    def ACE#Index# : RISCVRegACE<Index, "ace_reg_"#Index#"", ["ace_reg_"#Index#""]>,
-      DwarfRegNum<[Index]>;
+    def ACE#Index# : RISCVRegACE<Index, "ace_reg_"#Index#"", ["ace_reg_"#Index#""]>, DwarfRegNum<[Index]>;
   }
 }
+
+// Define a ACE Register class for RISC-V
+def ACE : RegisterClass<"RISCV", [i16], 4, (add
+  // ACE0, ACE1, ACE2, ACE3, ACE4, ACE5, ACE6, ACE7,
+  // ACE8, ACE9, ACE10,ACE11,ACE12,ACE13,ACE14,ACE15
+  (sequence "ACE%u", 0, 15)
+)>;
 
 // Vector type mapping to LLVM types.
 //

@@ -241,6 +241,21 @@ static DecodeStatus DecodeVRM8RegisterClass(MCInst &Inst, uint64_t RegNo,
   return MCDisassembler::Success;
 }
 
+static DecodeStatus DecodeACERegisterClass(MCInst &Inst, uint64_t RegNo,
+                                          uint64_t Address,
+                                          const MCDisassembler *Decoder) {
+  const FeatureBitset &FeatureBits =
+      Decoder->getSubtargetInfo().getFeatureBits();
+  bool IsRV32E = FeatureBits[RISCV::FeatureRV32E];
+
+  if (RegNo >= 32 || (IsRV32E && RegNo >= 16))
+    return MCDisassembler::Fail;
+
+  MCRegister Reg = RISCV::ACE0 + RegNo;
+  Inst.addOperand(MCOperand::createReg(Reg));
+  return MCDisassembler::Success;
+}
+
 static DecodeStatus decodeVMaskReg(MCInst &Inst, uint64_t RegNo,
                                    uint64_t Address,
                                    const MCDisassembler *Decoder) {
@@ -425,21 +440,6 @@ static DecodeStatus decodeRVCInstrRdRs1Rs2(MCInst &Inst, unsigned Insn,
   DecodeGPRRegisterClass(Inst, Rd, Address, Decoder);
   Inst.addOperand(Inst.getOperand(0));
   DecodeGPRRegisterClass(Inst, Rs2, Address, Decoder);
-  return MCDisassembler::Success;
-}
-
-static DecodeStatus decodeACERegisterClass(MCInst &Inst uint64_t RegNo,
-                                          uint64_t Address,
-                                          const MCDisassembler *Decoder) {
-  const FeatureBitset &FeatureBits =
-      Decoder->getSubtargetInfo().getFeatureBits();
-  bool IsRV32E = FeatureBits[RISCV::FeatureRV32E];
-
-  if (RegNo >= 32 || (IsRV32E && RegNo >= 16))
-    return MCDisassembler::Fail;
-
-  MCRegister Reg = RISCV::ACE0 + RegNo;
-  Inst.addOperand(MCOperand::createReg(Reg));
   return MCDisassembler::Success;
 }
 
